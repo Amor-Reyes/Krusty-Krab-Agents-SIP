@@ -26,10 +26,10 @@ function postJson($url, $data) {
 $results = [];
 
 // -----------------------------------------------------------------------------
-// Test Case 0: Menu MD vs Menu JSON Parity (Governance Rule #1)
+// Test Case 0: Menu MD vs Menu JSON Parity (Rule 1: Menu Single Source of Truth)
 // -----------------------------------------------------------------------------
-$menuMdPath = dirname(__DIR__) . "/Krusty-Krab-Agents-SIP10-main/data/menu.md";
-$menuJsonPath = dirname(__DIR__) . "/Krusty-Krab-Agents-SIP10-main/data/menu.json";
+$menuMdPath = file_exists(dirname(__DIR__) . "/data/menu.md") ? dirname(__DIR__) . "/data/menu.md" : dirname(__DIR__) . "/Krusty-Krab-Agents-SIP10-main/data/menu.md";
+$menuJsonPath = file_exists(dirname(__DIR__) . "/data/menu.json") ? dirname(__DIR__) . "/data/menu.json" : dirname(__DIR__) . "/Krusty-Krab-Agents-SIP10-main/data/menu.json";
 $parityPass = false;
 $parityDetails = "";
 

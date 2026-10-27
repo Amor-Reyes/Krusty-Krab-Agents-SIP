@@ -1,0 +1,4 @@
+# Runtime logs and ticket sequence state (may contain user input)
+**/outputs/*.log
+**/outputs/.ticket_seq_*
+/outputs/backup/
