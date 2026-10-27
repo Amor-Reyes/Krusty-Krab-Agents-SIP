@@ -4,13 +4,21 @@
 > **Workflow Pattern**: `PLAN > ORCHESTRATE > EXECUTE > CHECK > HUMAN APPROVAL > OUTPUT`  
 > **NIST AI RMF Core**: `GOVERN > MAP > MEASURE > MANAGE`
 
+**Team Members**:
+- Ysabelle Bengco
+- Wendel Lacson
+- Riejed Macatula
+- Jovielyn Salunga
+- Rafael Samson
+- Amor Reyes
+
 ---
 
 ## 1. Project Summary & Purpose
 The **Krusty Krab Governed Multi-Agent AI System** is an AI assistant tailored for food service operations. It automates customer order intake, kitchen ticket generation, billing calculations, and promotional advertising while maintaining **strict AI governance, risk controls, and human-in-the-loop oversight**.
 
 ### Architecture & Implementation Note
-The authentic multi-agent system runs via the Antigravity conversational chat interface, driven by `AGENTS.md` and the specialist subagent definitions in `.agents/` and `.claude/agents/`. The browser UI (`ui/`), PHP backend (`ui/api.php`), and Python script (`run_workflow.py`) provide a scripted interactive demonstration front-end implementing the exact same governed multi-agent workflow for testing and grading.
+The authentic multi-agent system runs via the Antigravity conversational chat interface, driven by `AGENTS.md` and the specialist subagent definitions in `.agents/` and `.claude/agents/`. The browser UI (`ui/`), PHP backend (`ui/api.php`), and Python CLI runner (`run_workflow.py`) provide scripted interactive demonstration front-ends implementing the exact same governed multi-agent workflow for testing, verification, and grading.
 
 ### Key Problems Solved
 - **Allergies caught and highlighted**: Cross-checks declared allergies against ingredients; mandates owner approval on conflict.
@@ -45,7 +53,7 @@ The authentic multi-agent system runs via the Antigravity conversational chat in
 6. **Human Approval Gate**: Nothing is finalized, published, or executed without human approval (Approve, Edit, Reject).
 7. **Two-Strike Escalation**: If the Health Inspector fails an output twice, escalate directly to the human owner instead of guessing.
 
-*(Implementation note: data/menu.json serves as a machine-readable JSON cache generated from data/menu.md for fast API and script ingestion, with an automated parity check).*
+*(Implementation note: `data/menu.json` serves as a machine-readable JSON cache generated from `data/menu.md` for fast API and script ingestion, with an automated parity check).*
 
 ---
 
@@ -63,39 +71,57 @@ The authentic multi-agent system runs via the Antigravity conversational chat in
 ## 5. Repository Structure
 
 ```text
-Krusty-Krab-Agents-SIP10-main/
+Krusty-Krab-Agents-SIP/
+├── .agents/                           # Antigravity Subagent Definitions (5 markdown personas)
+│   ├── health-inspector.md
+│   ├── mr-krabs-marketing.md
+│   ├── patrick-planner.md
+│   ├── spongebob-cook.md
+│   └── squidward-cashier.md
+├── .claude/agents/                    # Claude Code CLI/Desktop Subagent Definitions (5 markdown personas)
+│   ├── health-inspector.md
+│   ├── mr-krabs-marketing.md
+│   ├── patrick-planner.md
+│   ├── spongebob-cook.md
+│   └── squidward-cashier.md
+├── .gitignore                         # Git exclusion rules (ignores runtime logs & ticket cache)
 ├── AGENTS.md                          # Source of truth for agent workflow and 7 governance rules
-├── CLAUDE.md                          # Claude Code CLI/desktop Orchestrator rules
-├── GEMINI.md                          # Fallback configuration
+├── CLAUDE.md                          # Claude Code Orchestrator configuration
+├── GEMINI.md                          # Antigravity / Gemini Orchestrator configuration
+├── DIFF_REPORT.md                     # Comprehensive audit & compliance verification report
 ├── README.md                          # Complete project documentation and guide
-├── run_workflow.py                    # Python demonstration script (uses data/menu.json)
+├── run_workflow.py                    # Standalone Python demonstration script (Mode 1 & Mode 2)
 ├── data/
-│   ├── menu.md                        # Official menu, prices, and allergen disclosures
-│   ├── menu.json                      # Canonical machine-readable menu (single source of truth)
+│   ├── menu.md                        # Official menu, prices, and allergen disclosures (Single Source of Truth)
+│   ├── menu.json                      # Canonical machine-readable menu cache
 │   └── brand-rules.md                 # Advertising policies, brand tone, IP protections
-├── skills/
+├── docs-source/
+│   ├── traceability.md                # Risk > Rule > Agent > Test > NIST > Approval matrix
+│   └── workflow.mmd                   # Mermaid diagram of full governed multi-agent workflow
+├── outputs/
+│   ├── test_results.md                # Automated test execution report
+│   ├── decisions.log                  # Real-time log of human decisions (runtime generated)
+│   └── security_audit.log             # Real-time log of prompt injection refusals (runtime generated)
+├── reference/                         # Project Planning and Academic Requirements
+│   ├── agent_guide.md                 # Group report guide, character persona details & prompt engineering
+│   ├── krusty_krab_project_plan.md    # Comprehensive system architecture and implementation plan
+│   └── sip10_final_project_requirements.md # SIP10 coursework and grading specifications
+├── skills/                            # Agent Skill Definitions
 │   ├── order-planning/SKILL.md        # Patrick Star's order planning skill
 │   ├── cook-prep-ticket/SKILL.md      # SpongeBob's kitchen prep skill
 │   ├── cashier-billing/SKILL.md       # Squidward's cashier & billing skill
 │   ├── promo-marketing/SKILL.md       # Mr. Krabs' compliant marketing skill
 │   └── health-inspector-review/SKILL.md # Health Inspector's governance review skill
-├── .agents/                           # Subagent Definitions (5 markdown files)
-├── .claude/agents/                    # Claude Code Subagent Definitions (5 markdown files)
 ├── tests/
-│   ├── run_tests.php                  # Automated test runner executing 13 test cases
+│   ├── run_tests.php                  # Automated test runner executing 13 test scenarios
 │   └── test_cases.md                  # Comprehensive test specification matrix
-├── docs-source/
-│   ├── traceability.md                # Risk > Rule > Agent > Test > NIST > Approval matrix
-│   └── workflow.mmd                   # Mermaid diagram of full governed multi-agent workflow
-├── outputs/
-│   ├── test_results.md                # Automated test execution report (see outputs/test_results.md)
-│   ├── decisions.log                  # Real-time log of human Owner decisions (Approve/Edit/Reject)
-│   └── security_audit.log             # Real-time log of prompt injections and IP theft refusals
-└── ui/                                # Browser UI (served via XAMPP)
-    ├── index.html                     # Frontend interface with 8 quick-test buttons & modal
+└── ui/                                # Browser UI (served via Apache / XAMPP)
+    ├── index.html                     # Frontend interface with 8 quick-test buttons & approval modal
     ├── style.css                      # Krusty Krab SpongeBob theme styles
-    ├── app.js                         # Web client connecting prompt to api.php and logging
-    └── api.php                        # Governed backend orchestrator with /decide endpoint
+    ├── app.js                         # Web client connecting UI to api.php and approval modal
+    ├── api.php                        # Governed backend orchestrator with /decide endpoint
+    ├── fonts/                         # Custom Krusty Krab display typography
+    └── UI-Images/                     # Character avatars, scene backgrounds, and UI badges
 ```
 
 ---
@@ -122,9 +148,30 @@ Krusty-Krab-Agents-SIP10-main/
    - Click **Edit Order**: Returns request for editing and records `EDIT` in `outputs/decisions.log`.
    - Click **Reject Order**: Cancels request and records `REJECT` in `outputs/decisions.log`.
 
-### B. Run the Automated Test Suite
-Open a terminal in the project directory and run:
+### B. Run the Python CLI Runner (Zero-Dependency Alternative)
+You can run the full multi-agent pipeline or conversational character roleplay directly from your terminal without needing Apache/PHP:
+
+1. **Default Pipeline / Audit Mode (Mode 1)**:
+   ```bash
+   python run_workflow.py
+   ```
+   Executes the full governed chain end-to-end on a sample order, printing the Patrick Intake Plan, SpongeBob Kitchen Ticket, Squidward Itemized Bill, Health Inspector Review, and Human Approval Gate.
+
+2. **Interactive Conversational Mode (Mode 2)**:
+   ```bash
+   python run_workflow.py --conversational
+   ```
+   Starts a live terminal chat with Patrick, SpongeBob, Squidward, and Mr. Krabs in authentic character voices.
+
+### C. Run the Automated PHP Test Suite
+With Apache running, open a terminal in the project directory and execute:
 ```bash
 php tests/run_tests.php
 ```
-This tests all behavioral prompts and schema parity against `http://localhost/krusty-krab/ui/api.php` and updates `outputs/test_results.md`.
+This tests all 13 behavioral prompts and schema parity against `http://localhost/krusty-krab/ui/api.php` and writes the audit report to `outputs/test_results.md`.
+
+### D. Run via Native AI Agent Orchestrator (Antigravity & Claude Code)
+In Antigravity or Claude Code desktop/CLI:
+- Enter any customer order or promo request in the chat.
+- The assistant operates as the **Orchestrator (The Order Board)** following `AGENTS.md` / `CLAUDE.md`, invoking subagents in `.agents/` or `.claude/agents/`.
+- Say *"Switch to conversational mode"* or *"Let me talk to Patrick"* to chat with the crew turn-by-turn!
