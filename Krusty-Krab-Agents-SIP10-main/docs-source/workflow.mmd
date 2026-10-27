@@ -1,0 +1,112 @@
+flowchart TD
+    %% Global Styling
+    classDef intake fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f;
+    classDef execute fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a;
+    classDef audit fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
+    classDef human fill:#d1fae5,stroke:#059669,stroke-width:3px,color:#064e3b;
+    classDef storage fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#4c1d95;
+
+    %% Entry
+    User(["Customer or Marketing Request"]):::intake
+
+    %% Phase 1: PLAN
+    subgraph PlanPhase ["1. PLAN (Patrick Star - Intake Planner)"]
+        P_Intake["Analyze Intent & Scope<br/>(order-planning skill)"]:::intake
+        P_Check{"Request Type?"}:::intake
+        P_Security["Security Threat / Injection / Formula Exfiltration"]:::audit
+        P_Vague["Vague Order / Missing Information"]:::intake
+        P_OffMenu["Off-Menu Item (e.g. Pizza)"]:::audit
+        P_Order["Valid Customer Order"]:::execute
+        P_Promo["Valid Promo / Campaign Idea"]:::execute
+    end
+
+    User --> P_Intake
+    P_Intake --> P_Check
+    P_Check -->|Attack/Injection| P_Security
+    P_Check -->|Underspecified| P_Vague
+    P_Check -->|Not on menu.md| P_OffMenu
+    P_Check -->|Food Order| P_Order
+    P_Check -->|Marketing Idea| P_Promo
+
+    %% Phase 2 & 3: ORCHESTRATE & EXECUTE
+    subgraph ExecOrder ["2 & 3. ORCHESTRATE & EXECUTE: Order Pipeline"]
+        Cook["SpongeBob SquarePants (Cook)<br/>(cook-prep-ticket skill)"]:::execute
+        AllergyCheck{"Allergen Conflict<br/>(Peanuts/Gluten)?"}:::audit
+        Cashier["Squidward Tentacles (Cashier)<br/>(cashier-billing skill)"]:::execute
+        DiscountCheck{"Discount > 10%?"}:::audit
+    end
+
+    P_Order --> Cook
+    Cook --> AllergyCheck
+    AllergyCheck -->|Yes - Conflict| AllergyFlag["Flag: ALLERGY ALERT<br/>Mandatory Owner Sign-Off"]:::audit
+    AllergyCheck -->|No Conflict| Cashier
+    AllergyFlag --> Cashier
+    Cashier --> DiscountCheck
+    DiscountCheck -->|Yes > 10%| DiscFlag["Flag: DISCOUNT OVERRIDE<br/>Requires Owner Sign-Off"]:::audit
+    DiscountCheck -->|No <= 10%| OrderTicket["Kitchen Prep Ticket & Itemized Bill"]:::execute
+    DiscFlag --> OrderTicket
+
+    subgraph ExecPromo ["2 & 3. ORCHESTRATE & EXECUTE: Promo Pipeline"]
+        SquidVerify["Squidward Tentacles (Cashier)<br/>Price Verification from menu.md"]:::execute
+        Krabs["Mr. Krabs (Marketing Lead)<br/>(promo-marketing skill)"]:::execute
+        KrabsDraft["Draft Ad Copy & Value Proposition"]:::execute
+    end
+
+    P_Promo --> SquidVerify
+    SquidVerify --> Krabs
+    Krabs --> KrabsDraft
+
+    %% Phase 4: CHECK
+    subgraph CheckPhase ["4. CHECK (Health Inspector - Audit & Governance)"]
+        Inspector["Health Inspector (Reviewer)<br/>(health-inspector-review skill)"]:::audit
+        AuditRules{"Governance Rule Audit<br/>(Rules 1, 2, 3, 4, 6, 7)"}:::audit
+        AuditPass["Verdict: PASS"]:::human
+        AuditFail["Verdict: FAIL / ESCALATE"]:::audit
+        StrikeCheck{"Strike Count<br/>(Rule 7)?"}:::audit
+        RetryCount["Strike 1: Retry & Revise Copy"]:::execute
+        Escalate["Strike 2 / Critical Risk:<br/>Mandatory Escalation to Owner"]:::audit
+    end
+
+    OrderTicket --> Inspector
+    KrabsDraft --> Inspector
+    P_Security -->|Direct Route| Inspector
+    P_OffMenu -->|Direct Route| Inspector
+    P_Vague -->|Direct Route| Inspector
+
+    Inspector --> AuditRules
+    AuditRules -->|All Rules Clean| AuditPass
+    AuditRules -->|Violations Detected| AuditFail
+    AuditFail --> StrikeCheck
+    StrikeCheck -->|Strike 1| RetryCount
+    RetryCount -->|Revise Draft| Krabs
+    StrikeCheck -->|Strike 2 or Security/Allergy| Escalate
+
+    %% Phase 5: HUMAN APPROVAL
+    subgraph HumanApproval ["5. HUMAN APPROVAL GATE (Restaurant Owner)"]
+        OwnerModal{"Owner Decision Modal<br/>(UI Stepper Stage 6)"}:::human
+        BtnApprove["[Approve & Finalize]"]:::human
+        BtnEdit["[Edit Request]"]:::intake
+        BtnReject["[Reject Order]"]:::audit
+    end
+
+    AuditPass --> OwnerModal
+    Escalate --> OwnerModal
+
+    OwnerModal --> BtnApprove
+    OwnerModal --> BtnEdit
+    OwnerModal --> BtnReject
+    BtnEdit -->|Modify Prompt & Re-Run| P_Intake
+
+    %% Phase 6: OUTPUT & PERSISTENCE
+    subgraph OutputPhase ["6. OUTPUT & AUDIT PERSISTENCE"]
+        FinalReceipt["Print Receipt & Kitchen Release"]:::human
+        DecisionsLog[("outputs/decisions.log<br/>(Timestamp, Ticket, Decision)")]:::storage
+        SecurityLog[("outputs/security_audit.log<br/>(Refusal Event & Policy Tag)")]:::storage
+    end
+
+    BtnApprove --> FinalReceipt
+    BtnApprove --> DecisionsLog
+    BtnReject --> DecisionsLog
+    BtnEdit --> DecisionsLog
+    P_Security -.->|Immutable Log| SecurityLog
+    Escalate -.->|Incident Log| SecurityLog
